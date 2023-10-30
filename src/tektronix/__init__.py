@@ -5,4 +5,4 @@
 # can be found in the LICENSE.txt file for the project.
 """Package initialization.
 """
-__version__ = "0.1.0"
+__version__ = "0.1.1"
