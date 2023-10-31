@@ -24,12 +24,15 @@ logging.basicConfig(
 
 
 class TestReadingCSVFiles(unittest.TestCase):
+    """Test reading an RSA500 csv data file."""
+
     def setUp(self):
         test_csv_file = Path(TEST_DIR, "sample_data", "1M-11M.csv")
         print(test_csv_file)
         (self.header, self.data) = rsa500.read_csv_file(test_csv_file)
 
     def test_header_when_reading_csv_file(self):
+        """Test reading the header info of an RSA500 csv data file."""
         self.assertEqual(self.header["file"], "1M-11M.csv")
         self.assertEqual(self.header["center_freq"], 6_000_000.0)
         self.assertEqual(self.header["span_freq"], 10_000_000.0)
@@ -39,6 +42,7 @@ class TestReadingCSVFiles(unittest.TestCase):
         self.assertEqual(self.header["num_points"], 801)
 
     def test_data_when_reading_csv_file(self):
+        """Test reading the tract data of an RSA500 csv data file."""
         self.assertEqual(self.data.shape, (801,))
         self.assertEqual(self.data["amplitude"].shape, (801,))
         freq_data = [
