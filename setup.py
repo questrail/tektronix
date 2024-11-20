@@ -3,8 +3,7 @@
 # Project site: https://github.com/questrail/tektronix
 # Use of this source code is governed by a MIT-style license that
 # can be found in the LICENSE.txt file for the project.
-"""Dynamic setup file.
-"""
+"""Dynamic setup file."""
 
 # Standard module imports
 import codecs
@@ -38,9 +37,7 @@ def find_version(*file_paths):
     version_file = read(*file_paths)
     # The version line must have the form:
     # __version__ = 'ver'
-    version_match = re.search(
-        r"^__version__ = ['\"]([^'\"]*)['\"]", version_file, re.M
-    )
+    version_match = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]", version_file, re.M)
     if version_match:
         return version_match.group(1)
     raise RuntimeError("Unable to find version string.")
@@ -60,18 +57,17 @@ setuptools.setup(
     },
     package_dir={"": "src"},
     packages=setuptools.find_packages(where="src"),
-    python_requires=">=3.6",
-    license="MIT",
+    python_requires=">=3.9",
     requires=["numpy (>=1.6.0)"],
     classifiers=[
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.4",
-        "Programming Language :: Python :: 3.5",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
+        "Programming Language :: Python :: 3.13",
+        "Programming Language :: Python :: 3.14",
         "License :: OSI Approved :: MIT License",
         "Development Status :: 5 - Production/Stable",
         "Operating System :: OS Independent",
