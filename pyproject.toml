@@ -51,7 +51,7 @@ exclude = [
 ignore = ["src/oldstuff"]
 defineConstant = { DEBUG = true }
 stubPath = "src/stubs"
-venv = "jk010"
+venv = "tektronix"
 
 reportMissingImports = false
 reportMissingTypeStubs = false
