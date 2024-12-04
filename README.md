@@ -37,8 +37,8 @@ available [Invoke][] tasks.
 
 ```bash
 $ brew install pyenv pyenv-virtualenv
-$ pyenv install 3.11.6
-$ pyenv virtualenv 3.11.6 tektronix
+$ pyenv install 3.13
+$ pyenv virtualenv 3.13 tektronix
 $ pyenv activate tektronix
 $ pip install --upgrade pip
 $ pip install -r requirements.txt
