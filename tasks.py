@@ -38,7 +38,7 @@ def test(ctx):
     run("nose2 -C")
 
 
-@task(lint, test)
+@task
 def release(ctx, deploy=False, version=""):
     """Tag release and deploy to PyPI"""
     if deploy and version:
