@@ -27,6 +27,12 @@ def freeze(ctx):
 
 
 @task
+def outdated(ctx):
+    """List outdated packages"""
+    run("pip list --outdated")
+
+
+@task
 def test(ctx):
     """Unit test code"""
     run("nose2 -C")
