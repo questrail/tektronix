@@ -5,11 +5,10 @@
 # can be found in the LICENSE.txt file for the project.
 """Unit tests for tektronix/rsa500.py."""
 
-import unittest
 import logging
+import unittest
 
 import numpy.testing as npt
-
 from unipath import Path
 
 from tektronix import rsa500
@@ -98,6 +97,42 @@ class TestReadingCSVVer1Files(unittest.TestCase):
             (self.data["amplitude"][1], 86.962478637695313),
             (self.data["amplitude"][-2], 43.837810516357422),
             (self.data["amplitude"][-1], 43.746368408203125),
+        ]
+        for actual, desired in amp_data:
+            npt.assert_almost_equal(actual, desired)
+
+
+class TestReadingEMCEMICSVVer1Files(unittest.TestCase):
+    """Test reading an RSA500 EMC-EMI csv ver 1 data file."""
+
+    def setUp(self):
+        test_csv_file = Path(TEST_DIR, "sample_data", "EMC-EMI v1 Example.csv")
+        (self.header, self.data) = rsa500.read_csv_file(test_csv_file)
+
+    def test_header_when_reading_csv_file(self):
+        """Test reading the header info of an RSA500 csv data file."""
+        self.assertEqual(self.header["file"], "EMC-EMI v1 Example.csv")
+        self.assertEqual(self.header["center_freq"], 6_000_000.0)
+        self.assertEqual(self.header["resolution_bw"], 9_000.0)
+        self.assertEqual(self.header["resolution_bw_units"], "Hz")
+        self.assertEqual(self.header["num_traces"], 1)
+        self.assertEqual(self.header["num_points"], 2401)
+
+    def test_data_when_reading_csv_file(self):
+        """Test reading the tract data of an RSA500 csv data file."""
+        self.assertEqual(self.data.shape, (2401,))
+        self.assertEqual(self.data["amplitude"].shape, (2401,))
+        freq_data = [
+            (self.data["frequency"][0], 1_000_000.0),
+            (self.data["frequency"][3], 1_012_500.0),
+        ]
+        for actual, desired in freq_data:
+            npt.assert_almost_equal(actual, desired)
+        amp_data = [
+            (self.data["amplitude"][0], 45.09005),
+            (self.data["amplitude"][1], 44.83614),
+            (self.data["amplitude"][-2], 13.39709),
+            (self.data["amplitude"][-1], 13.50026),
         ]
         for actual, desired in amp_data:
             npt.assert_almost_equal(actual, desired)

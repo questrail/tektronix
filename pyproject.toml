@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "tektronix"
-version = "0.4.0"
+version = "0.4.1"
 authors = [{ name = "Matthew Rankin", email = "matthew@questrail.com" }]
 description = "Package for working with Tektronix test equipment"
 readme = "README.md"

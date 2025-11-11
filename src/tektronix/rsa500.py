@@ -31,10 +31,13 @@ def read_csv_file(filename):
         temp_row = next(reader)
         if temp_row[0] == "Spectrum":
             ver = 0
+            msr_type = "spectrum"
         elif temp_row[0] == "Spectrum 1":
             ver = 1
+            msr_type = "spectrum"
         elif temp_row[0] == "EMC-EMI 1":
             ver = 1
+            msr_type = "emc-emi"
         else:
             logging.error("Unknown csv filetype: %s", temp_row[0])
             sys.exit(1)
@@ -66,14 +69,28 @@ def read_csv_file(filename):
             if len(temp_row) == 1 and temp_row[0] == "[Parameters]":
                 break
 
-        temp_row = next(reader)
-        header["span_freq"] = float(temp_row[1])
-        header["span_freq_units"] = temp_row[2]
-        temp_row = next(reader)
-        header["resolution_bw"] = float(temp_row[1])
-        header["resolution_bw_units"] = temp_row[2]
-        temp_row = next(reader)
-        header["rbw_window_type"] = temp_row[1]
+        if msr_type == "spectrum":
+            temp_row = next(reader)
+            header["span_freq"] = float(temp_row[1])
+            header["span_freq_units"] = temp_row[2]
+            temp_row = next(reader)
+            header["resolution_bw"] = float(temp_row[1])
+            header["resolution_bw_units"] = temp_row[2]
+            temp_row = next(reader)
+            header["rbw_window_type"] = temp_row[1]
+        elif msr_type == "emc-emi":
+            while True:
+                temp_row = next(reader)
+                if len(temp_row) == 5 and temp_row[0] == "Start Frequency":
+                    break
+            header["start_freq"] = float(temp_row[2])
+            header["start_freq_units"] = temp_row[3]
+            temp_row = next(reader)
+            header["stop_freq"] = float(temp_row[2])
+            header["stop_freq_units"] = temp_row[3]
+            temp_row = next(reader)
+            header["resolution_bw"] = float(temp_row[2])
+            header["resolution_bw_units"] = temp_row[3]
 
         # Read until we find the [Traces] section.
         while True:
@@ -90,14 +107,20 @@ def read_csv_file(filename):
         num_traces = 1
         header["num_traces"] = num_traces
         temp_row = next(reader)
-        header["frequency_unit"] = temp_row[2]
-        temp_row = next(reader)
+        if msr_type == "spectrum":
+            header["frequency_unit"] = temp_row[2]
+            temp_row = next(reader)
+        elif msr_type == "emc-emi":
+            header["frequency_unit"] = temp_row[1]
 
         data_array = []
 
         for _ in range(num_points):
             temp_row = next(reader)
-            data_array.append((float(temp_row[1]), float(temp_row[0])))
+            if msr_type == "spectrum":
+                data_array.append((float(temp_row[1]), float(temp_row[0])))
+            elif msr_type == "emc-emi":
+                data_array.append((float(temp_row[0]), float(temp_row[1])))
             data = np.array(
                 data_array,
                 dtype={

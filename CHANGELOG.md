@@ -4,6 +4,10 @@ This file contains all notable changes to the [tektronix][] project.
 
 ## Unreleased
 
+## v0.4.1 - 11-Nov-25
+
+- Fixed reading `EMC-EMI 1` file formats.
+
 ## v0.4.0 - 11-Nov-25
 
 - Updated code to handle `EMC-EMI 1` in the first row of the CSV file.
