@@ -33,6 +33,8 @@ def read_csv_file(filename):
             ver = 0
         elif temp_row[0] == "Spectrum 1":
             ver = 1
+        elif temp_row[0] == "EMC-EMI 1":
+            ver = 1
         else:
             logging.error("Unknown csv filetype: %s", temp_row[0])
             sys.exit(1)
