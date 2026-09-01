@@ -2,7 +2,7 @@
 
 [project]
 name = "tektronix"
-version = "0.4.1"
+version = "0.5.0"
 description = "Package for working with Tektronix test equipment"
 readme = "README.md"
 license = "MIT"

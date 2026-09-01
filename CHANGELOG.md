@@ -4,6 +4,8 @@ This file contains all notable changes to the [tektronix][] project.
 
 ## Unreleased
 
+## v0.5.0 - 2026-09-01
+
 ### Added
 
 - Test, lint, and type check on every push through a [CI workflow][], across
