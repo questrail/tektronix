@@ -1,142 +1,160 @@
-# -*- coding: utf-8 -*-
-# Copyright (c) 2013-2022 The tektronix developers. All rights reserved.
+# Copyright (c) 2013-2026 The tektronix developers. All rights reserved.
 # Project site: https://github.com/questrail/tektronix
 # Use of this source code is governed by a MIT-style license that
 # can be found in the LICENSE.txt file for the project.
 """Unit tests for tektronix/rsa500.py."""
 
-import logging
-import unittest
+import pathlib
 
 import numpy.testing as npt
-from unipath import Path
+import pytest
 
 from tektronix import rsa500
 
-TEST_DIR = Path(__file__).ancestor(1)
+SAMPLE_DATA = pathlib.Path(__file__).parent / "sample_data"
 
 
-# Setup logging
-logging.basicConfig(
-    level=logging.DEBUG, format=" %(asctime)s -  %(levelname)s - %(message)s"
-)
+@pytest.fixture
+def spectrum_ver0():
+    """An RSA500 `Spectrum` (ver 0) csv file."""
+    return rsa500.read_csv_file(SAMPLE_DATA / "1M-11M.csv")
 
 
-class TestReadingCSVVer0Files(unittest.TestCase):
+@pytest.fixture
+def spectrum_ver1():
+    """An RSA500 `Spectrum 1` (ver 1) csv file."""
+    return rsa500.read_csv_file(SAMPLE_DATA / "Cab 200k-30M Monopole 10kHz TN2.csv")
+
+
+@pytest.fixture
+def emc_emi_ver1():
+    """An RSA500 `EMC-EMI 1` (ver 1) csv file."""
+    return rsa500.read_csv_file(SAMPLE_DATA / "EMC-EMI v1 Example.csv")
+
+
+class TestReadingCSVVer0Files:
     """Test reading an RSA500 csv ver 0 data file."""
 
-    def setUp(self):
-        test_csv_file = Path(TEST_DIR, "sample_data", "1M-11M.csv")
-        (self.header, self.data) = rsa500.read_csv_file(test_csv_file)
-
-    def test_header_when_reading_csv_file(self):
+    def test_header_when_reading_csv_file(self, spectrum_ver0):
         """Test reading the header info of an RSA500 csv data file."""
-        self.assertEqual(self.header["file"], "1M-11M.csv")
-        self.assertEqual(self.header["center_freq"], 6_000_000.0)
-        self.assertEqual(self.header["span_freq"], 10_000_000.0)
-        self.assertEqual(self.header["resolution_bw"], 9_000.0)
-        self.assertEqual(self.header["resolution_bw_units"], "Hz")
-        self.assertEqual(self.header["num_traces"], 1)
-        self.assertEqual(self.header["num_points"], 801)
+        header, _ = spectrum_ver0
+        assert header["file"] == "1M-11M.csv"
+        assert header["center_freq"] == 6_000_000.0
+        assert header["span_freq"] == 10_000_000.0
+        assert header["resolution_bw"] == 9_000.0
+        assert header["resolution_bw_units"] == "Hz"
+        assert header["num_traces"] == 1
+        assert header["num_points"] == 801
 
-    def test_data_when_reading_csv_file(self):
-        """Test reading the tract data of an RSA500 csv data file."""
-        self.assertEqual(self.data.shape, (801,))
-        self.assertEqual(self.data["amplitude"].shape, (801,))
+    def test_data_when_reading_csv_file(self, spectrum_ver0):
+        """Test reading the trace data of an RSA500 csv data file."""
+        _, data = spectrum_ver0
+        assert data.shape == (801,)
+        assert data["amplitude"].shape == (801,)
         freq_data = [
-            (self.data["frequency"][0], 1_000_000.0),
-            (self.data["frequency"][1], 1_012_500.0),
-            (self.data["frequency"][799], 10_987_500.0),
-            (self.data["frequency"][800], 11_000_000.0),
-            (self.data["frequency"][-2], 10_987_500.0),
-            (self.data["frequency"][-1], 11_000_000.0),
+            (data["frequency"][0], 1_000_000.0),
+            (data["frequency"][1], 1_012_500.0),
+            (data["frequency"][799], 10_987_500.0),
+            (data["frequency"][800], 11_000_000.0),
+            (data["frequency"][-2], 10_987_500.0),
+            (data["frequency"][-1], 11_000_000.0),
         ]
         for actual, desired in freq_data:
             npt.assert_almost_equal(actual, desired)
         amp_data = [
-            (self.data["amplitude"][0], 57.427009582519531),
-            (self.data["amplitude"][1], 40.868099212646484),
-            (self.data["amplitude"][-2], 17.863529205322266),
-            (self.data["amplitude"][-1], 20.075450897216797),
+            (data["amplitude"][0], 57.427009582519531),
+            (data["amplitude"][1], 40.868099212646484),
+            (data["amplitude"][-2], 17.863529205322266),
+            (data["amplitude"][-1], 20.075450897216797),
         ]
         for actual, desired in amp_data:
             npt.assert_almost_equal(actual, desired)
 
 
-class TestReadingCSVVer1Files(unittest.TestCase):
+class TestReadingCSVVer1Files:
     """Test reading an RSA500 csv ver 1 data file."""
 
-    def setUp(self):
-        test_csv_file = Path(
-            TEST_DIR, "sample_data", "Cab 200k-30M Monopole 10kHz TN2.csv"
-        )
-        (self.header, self.data) = rsa500.read_csv_file(test_csv_file)
-
-    def test_header_when_reading_csv_file(self):
+    def test_header_when_reading_csv_file(self, spectrum_ver1):
         """Test reading the header info of an RSA500 csv data file."""
-        self.assertEqual(self.header["file"], "Cab 200k-30M Monopole 10kHz TN2.csv")
-        self.assertEqual(self.header["center_freq"], 15_100_000.0)
-        self.assertEqual(self.header["span_freq"], 29_800_000.0)
-        self.assertEqual(self.header["resolution_bw"], 10_000.0)
-        self.assertEqual(self.header["resolution_bw_units"], "Hz")
-        self.assertEqual(self.header["num_traces"], 1)
-        self.assertEqual(self.header["num_points"], 2401)
+        header, _ = spectrum_ver1
+        assert header["file"] == "Cab 200k-30M Monopole 10kHz TN2.csv"
+        assert header["center_freq"] == 15_100_000.0
+        assert header["span_freq"] == 29_800_000.0
+        assert header["resolution_bw"] == 10_000.0
+        assert header["resolution_bw_units"] == "Hz"
+        assert header["num_traces"] == 1
+        assert header["num_points"] == 2401
 
-    def test_data_when_reading_csv_file(self):
-        """Test reading the tract data of an RSA500 csv data file."""
-        self.assertEqual(self.data.shape, (2401,))
-        self.assertEqual(self.data["amplitude"].shape, (2401,))
+    def test_data_when_reading_csv_file(self, spectrum_ver1):
+        """Test reading the trace data of an RSA500 csv data file."""
+        _, data = spectrum_ver1
+        assert data.shape == (2401,)
+        assert data["amplitude"].shape == (2401,)
         freq_data = [
-            (self.data["frequency"][0], 200_000.0),
-            (self.data["frequency"][3], 237_250.0),
+            (data["frequency"][0], 200_000.0),
+            (data["frequency"][3], 237_250.0),
         ]
         for actual, desired in freq_data:
             npt.assert_almost_equal(actual, desired)
         amp_data = [
-            (self.data["amplitude"][0], 82.783210754394531),
-            (self.data["amplitude"][1], 86.962478637695313),
-            (self.data["amplitude"][-2], 43.837810516357422),
-            (self.data["amplitude"][-1], 43.746368408203125),
+            (data["amplitude"][0], 82.783210754394531),
+            (data["amplitude"][1], 86.962478637695313),
+            (data["amplitude"][-2], 43.837810516357422),
+            (data["amplitude"][-1], 43.746368408203125),
         ]
         for actual, desired in amp_data:
             npt.assert_almost_equal(actual, desired)
 
 
-class TestReadingEMCEMICSVVer1Files(unittest.TestCase):
+class TestReadingEMCEMICSVVer1Files:
     """Test reading an RSA500 EMC-EMI csv ver 1 data file."""
 
-    def setUp(self):
-        test_csv_file = Path(TEST_DIR, "sample_data", "EMC-EMI v1 Example.csv")
-        (self.header, self.data) = rsa500.read_csv_file(test_csv_file)
-
-    def test_header_when_reading_csv_file(self):
+    def test_header_when_reading_csv_file(self, emc_emi_ver1):
         """Test reading the header info of an RSA500 csv data file."""
-        self.assertEqual(self.header["file"], "EMC-EMI v1 Example.csv")
-        self.assertEqual(self.header["center_freq"], 6_000_000.0)
-        self.assertEqual(self.header["resolution_bw"], 9_000.0)
-        self.assertEqual(self.header["resolution_bw_units"], "Hz")
-        self.assertEqual(self.header["num_traces"], 1)
-        self.assertEqual(self.header["num_points"], 2401)
+        header, _ = emc_emi_ver1
+        assert header["file"] == "EMC-EMI v1 Example.csv"
+        assert header["center_freq"] == 6_000_000.0
+        assert header["resolution_bw"] == 9_000.0
+        assert header["resolution_bw_units"] == "Hz"
+        assert header["num_traces"] == 1
+        assert header["num_points"] == 2401
 
-    def test_data_when_reading_csv_file(self):
-        """Test reading the tract data of an RSA500 csv data file."""
-        self.assertEqual(self.data.shape, (2401,))
-        self.assertEqual(self.data["amplitude"].shape, (2401,))
+    def test_data_when_reading_csv_file(self, emc_emi_ver1):
+        """Test reading the trace data of an RSA500 csv data file."""
+        _, data = emc_emi_ver1
+        assert data.shape == (2401,)
+        assert data["amplitude"].shape == (2401,)
         freq_data = [
-            (self.data["frequency"][0], 1_000_000.0),
-            (self.data["frequency"][3], 1_012_500.0),
+            (data["frequency"][0], 1_000_000.0),
+            (data["frequency"][3], 1_012_500.0),
         ]
         for actual, desired in freq_data:
             npt.assert_almost_equal(actual, desired)
         amp_data = [
-            (self.data["amplitude"][0], 45.09005),
-            (self.data["amplitude"][1], 44.83614),
-            (self.data["amplitude"][-2], 13.39709),
-            (self.data["amplitude"][-1], 13.50026),
+            (data["amplitude"][0], 45.09005),
+            (data["amplitude"][1], 44.83614),
+            (data["amplitude"][-2], 13.39709),
+            (data["amplitude"][-1], 13.50026),
         ]
         for actual, desired in amp_data:
             npt.assert_almost_equal(actual, desired)
 
 
-if __name__ == "__main__":
-    unittest.main()
+class TestReadingUnknownCSVFiles:
+    """Test reading a csv file the module does not recognize."""
+
+    def test_unknown_filetype_exits(self, tmp_path):
+        """An unrecognized first cell stops the read rather than mis-parsing.
+
+        The three recognized layouts are told apart by that cell alone, and
+        everything after it indexes into rows whose shape depends on which
+        layout it is, so continuing past an unknown one would read a
+        different file format as if it were an RSA500 trace.
+        """
+        unknown_csv = tmp_path / "unknown.csv"
+        unknown_csv.write_text("Waveform,2025-11-11T00:00:00\n")
+
+        with pytest.raises(SystemExit) as exit_info:
+            rsa500.read_csv_file(unknown_csv)
+
+        assert exit_info.value.code == 1
