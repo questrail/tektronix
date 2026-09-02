@@ -5,5 +5,6 @@
 """Modules and helpers for working with Tektronix test equipment data."""
 
 from . import rsa500
+from .rsa500 import UnknownFileTypeError
 
-__all__ = ["rsa500"]
+__all__ = ["UnknownFileTypeError", "rsa500"]

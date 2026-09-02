@@ -8,7 +8,6 @@
 import csv
 import logging
 import os
-import sys
 from collections.abc import Callable, Iterator
 from typing import Any
 
@@ -21,6 +20,11 @@ import numpy.typing as npt
 # this module. Logging to a module logger instead leaves that choice where it
 # belongs, with the application.
 _log = logging.getLogger(__name__)
+
+
+class UnknownFileTypeError(ValueError):
+    """The first cell of the file names a layout this module cannot read."""
+
 
 # The first cell of the first row is the only thing that says which layout a
 # file has, and everything after it indexes into rows whose shape depends on
@@ -224,6 +228,10 @@ def read_csv_file(
     Returns:
         A two element tuple of the header dict and a 1D numpy structured
         array with fields 'frequency' and 'amplitude'.
+
+    Raises:
+        UnknownFileTypeError: The first cell names a layout this module does
+            not read.
     """
     header: Header = {}
 
@@ -232,8 +240,7 @@ def read_csv_file(
         header["file"] = os.path.basename(filename)
         row = next(reader)
         if row[0] not in _FILE_TYPES:
-            _log.error("Unknown csv filetype: %s", row[0])
-            sys.exit(1)
+            raise UnknownFileTypeError(f"Unknown csv filetype: {row[0]!r}")
         ver, msr_type = _FILE_TYPES[row[0]]
         _log.info("RSA500 CSV ver %s", ver)
         header["timestamp"] = row[1]

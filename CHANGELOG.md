@@ -18,6 +18,15 @@ This file contains all notable changes to the [tektronix][] project.
 
 ### Changed
 
+- `read_csv_file` raises `UnknownFileTypeError` on a first cell it does not
+  recognize, where it called `sys.exit(1)`. A library has no business ending
+  the caller's process over a bad file: an application reading a directory of
+  captures lost the run on the first stray one, with no way to catch it and
+  skip. The new exception subclasses `ValueError` and is exported from the
+  package. The `logging.error` that preceded the exit is gone, the message
+  having moved onto the exception, where a caller who is not listening to
+  logging can still read it.
+
 - `just build` and `just release` depend on `cov` rather than `test`. CI runs
   pytest under coverage and fails below the `fail_under` floor in
   `pyproject.toml`, so the bare suite these recipes ran left that gate as one

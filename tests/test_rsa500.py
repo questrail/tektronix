@@ -143,7 +143,7 @@ class TestReadingEMCEMICSVVer1Files:
 class TestReadingUnknownCSVFiles:
     """Test reading a csv file the module does not recognize."""
 
-    def test_unknown_filetype_exits(self, tmp_path):
+    def test_unknown_filetype_raises(self, tmp_path):
         """An unrecognized first cell stops the read rather than mis-parsing.
 
         The three recognized layouts are told apart by that cell alone, and
@@ -154,7 +154,31 @@ class TestReadingUnknownCSVFiles:
         unknown_csv = tmp_path / "unknown.csv"
         unknown_csv.write_text("Waveform,2025-11-11T00:00:00\n")
 
-        with pytest.raises(SystemExit) as exit_info:
+        with pytest.raises(rsa500.UnknownFileTypeError, match="Waveform"):
             rsa500.read_csv_file(unknown_csv)
 
-        assert exit_info.value.code == 1
+    def test_unknown_filetype_leaves_the_caller_running(self, tmp_path):
+        """The read used to call sys.exit, ending the caller's process.
+
+        Catching what it raises has to be enough to carry on, which is the
+        whole difference between a library reporting a bad file and one
+        deciding the program is over.
+        """
+        unknown_csv = tmp_path / "unknown.csv"
+        unknown_csv.write_text("Waveform,2025-11-11T00:00:00\n")
+
+        carried_on = False
+        try:
+            rsa500.read_csv_file(unknown_csv)
+        except rsa500.UnknownFileTypeError:
+            carried_on = True
+
+        assert carried_on
+
+    def test_the_error_is_a_value_error(self, tmp_path):
+        """Anyone already catching ValueError around a read keeps working."""
+        unknown_csv = tmp_path / "unknown.csv"
+        unknown_csv.write_text("Waveform,2025-11-11T00:00:00\n")
+
+        with pytest.raises(ValueError, match="Unknown csv filetype"):
+            rsa500.read_csv_file(unknown_csv)
