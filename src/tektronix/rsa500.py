@@ -16,10 +16,11 @@ from typing import Any
 import numpy as np
 import numpy.typing as npt
 
-# Setup logging
-logging.basicConfig(
-    level=logging.INFO, format=" %(asctime)s -  %(levelname)s - %(message)s"
-)
+# A library configures no handlers and sets no levels: basicConfig() here ran
+# at import and reconfigured the root logger for whatever application imported
+# this module. Logging to a module logger instead leaves that choice where it
+# belongs, with the application.
+_log = logging.getLogger(__name__)
 
 # The first cell of the first row is the only thing that says which layout a
 # file has, and everything after it indexes into rows whose shape depends on
@@ -231,10 +232,10 @@ def read_csv_file(
         header["file"] = os.path.basename(filename)
         row = next(reader)
         if row[0] not in _FILE_TYPES:
-            logging.error("Unknown csv filetype: %s", row[0])
+            _log.error("Unknown csv filetype: %s", row[0])
             sys.exit(1)
         ver, msr_type = _FILE_TYPES[row[0]]
-        logging.info("RSA500 CSV ver %s", ver)
+        _log.info("RSA500 CSV ver %s", ver)
         header["timestamp"] = row[1]
 
         if ver == 0:
