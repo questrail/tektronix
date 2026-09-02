@@ -60,7 +60,7 @@ select = [
 # a test the literal is the expected value, and naming it would only move the
 # number one line up while making the assertion harder to read against the
 # sample file it was read out of.
-"tests/*" = ["PLR2004"]
+"tests/**" = ["PLR2004"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
