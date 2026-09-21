@@ -53,6 +53,18 @@ This file contains all notable changes to the [tektronix][] project.
   Maintainers and Contributors, which `pyproject.toml` already records in
   its `authors` field.
 
+### Fixed
+
+- `just add`, `just dev`, `just up`, and `just doc` quote the argument they
+  are given. just interpolates an argument straight into the shell line, so
+  `just add 'siganalysis>=0.10.0'` ran `uv add siganalysis>=0.10.0`: the `>`
+  redirected stdout, uv saw the bare package name, the version constraint was
+  dropped, and an empty file called `=0.10.0` was left in the repository root.
+  Nothing failed, so the only sign it had happened was the stray file and a
+  `pyproject.toml` that had not moved. The variadic `*args` that `test` and
+  `cov` take stays unquoted, since quoting it would collapse several arguments
+  into one.
+
 ## v0.5.0 - 2026-09-01
 
 ### Added
